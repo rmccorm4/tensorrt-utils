@@ -110,7 +110,7 @@ def infer(engine_path, preprocess_func, batch_size=8, input_images=[], labels=[]
 
 
 
-def get_inputs(filename=None, directory=None, allowed_extensions=(".jpeg", ".jpg", ".png"):
+def get_inputs(filename=None, directory=None, allowed_extensions=(".jpeg", ".jpg", ".png")):
     filenames = []
     if filename:
         filenames.append(filename)

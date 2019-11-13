@@ -60,7 +60,11 @@ def main():
     logger.info("TRT_LOGGER Verbosity: {:}".format(TRT_LOGGER.min_severity))
 
 
-    with trt.Builder(TRT_LOGGER) as builder, builder.create_network() as network, trt.OnnxParser(network, TRT_LOGGER) as parser:
+    network_flags = 0
+    if args.explicit_batch:
+        network_flags |= 1 << int(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
+
+    with trt.Builder(TRT_LOGGER) as builder, builder.create_network(network_flags) as network, trt.OnnxParser(network, TRT_LOGGER) as parser:
         builder.max_batch_size = args.max_batch_size
         builder.max_workspace_size = 2**30 # 1GiB
 
