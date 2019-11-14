@@ -15,7 +15,6 @@
 # limitations under the License.
 
 import os
-import sys
 import glob
 import argparse
 import PIL.Image
@@ -109,29 +108,35 @@ def infer(engine_path, preprocess_func, batch_size=8, input_images=[], labels=[]
                     print("\tPrediction: {:30} Probability: {:0.2f}".format(pred, prob))
 
 
-
 def get_inputs(filename=None, directory=None, allowed_extensions=(".jpeg", ".jpg", ".png")):
     filenames = []
     if filename:
         filenames.append(filename)
     if directory:
-        dir_files = [path for path in glob.iglob(os.path.join(directory, "**"), recursive=True) if os.path.isfile(path) and path.lower().endswith(allowed_extensions)]
+        dir_files = [path for path in glob.iglob(os.path.join(directory, "**"), recursive=True)
+                     if os.path.isfile(path) and path.lower().endswith(allowed_extensions)]
         filenames.extend(dir_files)
 
     if len(filenames) <= 0:
         raise ValueError("ERROR: No valid inputs given.")
 
-    return filenames 
+    return filenames
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run inference on TensorRT engines for Imagenet-based Classification models.')
-    parser.add_argument('--engine', type=str, required=True, help='Path to TensorRT engine {resnet50, vgg16, inception_v1, mobilenetv2-1.0...}')
-    parser.add_argument('-f', '--file', default=None, type=str, help="Path to input image.")
-    parser.add_argument('-d', '--directory', default=None, type=str, help="Path to directory of input images.")
-    parser.add_argument('-n', '--num_classes', default=3, type=int, help="Top-K predictions to output.")
-    parser.add_argument('-b', '--batch_size', default=8, type=int, help="Number of inputs to send in parallel (up to max batch size of engine).")
-    parser.add_argument("-p", "--preprocess_func", type=str, default=None, help="Name of function defined in 'processing.py' to use for pre-processing calibration data.")
+    parser.add_argument('--engine', type=str, required=True,
+                        help='Path to TensorRT engine {resnet50, vgg16, inception_v1, mobilenetv2-1.0...}')
+    parser.add_argument('-f', '--file', default=None, type=str,
+                        help="Path to input image.")
+    parser.add_argument('-d', '--directory', default=None, type=str,
+                        help="Path to directory of input images.")
+    parser.add_argument('-n', '--num_classes', default=3, type=int,
+                        help="Top-K predictions to output.")
+    parser.add_argument('-b', '--batch_size', default=8, type=int,
+                        help="Number of inputs to send in parallel (up to max batch size of engine).")
+    parser.add_argument("-p", "--preprocess_func", type=str, default=None,
+                        help="Name of function defined in 'processing.py' to use for pre-processing calibration data.")
     args = parser.parse_args()
 
     input_images = get_inputs(args.file, args.directory)
@@ -145,4 +150,5 @@ if __name__ == '__main__':
     else:
         preprocess_func = processing.preprocess_imagenet
 
-    infer(args.engine, preprocess_func, batch_size=args.batch_size, input_images=input_images, labels=labels, num_classes=args.num_classes)
+    infer(args.engine, preprocess_func, batch_size=args.batch_size, input_images=input_images,
+          labels=labels, num_classes=args.num_classes)

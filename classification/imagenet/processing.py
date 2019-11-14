@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import logging
 
 import numpy as np
@@ -67,6 +66,7 @@ def preprocess_imagenet(image, channels=3, height=224, width=224):
 
     return img_data
 
+
 def preprocess_inception(image, channels=3, height=224, width=224):
     """Pre-processing for InceptionV1. Inception expects different pre-processing
     than {resnet50, vgg16, mobilenet}. This may not be totally correct,
@@ -99,5 +99,5 @@ def preprocess_inception(image, channels=3, height=224, width=224):
         logger.debug("Received grayscale image. Reshaped to {:}".format(img_data.shape))
     else:
         img_data = img_data.transpose([2, 0, 1])
-    
+
     return img_data

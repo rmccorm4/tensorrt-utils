@@ -48,7 +48,8 @@ def get_calibration_files(calibration_data, max_calibration_size=None, allowed_e
     """
 
     logger.info("Collecting calibration files from: {:}".format(calibration_data))
-    calibration_files = [path for path in glob.iglob(os.path.join(calibration_data, "**"), recursive=True) if os.path.isfile(path) and path.lower().endswith(allowed_extensions)]
+    calibration_files = [path for path in glob.iglob(os.path.join(calibration_data, "**"), recursive=True)
+                         if os.path.isfile(path) and path.lower().endswith(allowed_extensions)]
     logger.info("Number of Calibration Files found: {:}".format(len(calibration_files)))
 
     if len(calibration_files) == 0:
@@ -57,14 +58,13 @@ def get_calibration_files(calibration_data, max_calibration_size=None, allowed_e
     if max_calibration_size:
         if len(calibration_files) > max_calibration_size:
             logger.warning("Capping number of calibration images to max_calibration_size: {:}".format(max_calibration_size))
-            random.seed(42) # Set seed for reproducibility
+            random.seed(42)  # Set seed for reproducibility
             calibration_files = random.sample(calibration_files, max_calibration_size)
 
     return calibration_files
 
 
 # https://docs.nvidia.com/deeplearning/sdk/tensorrt-api/python_api/infer/Int8/EntropyCalibrator2.html
-#class ImagenetCalibrator(trt.IInt8Calibrator):
 class ImagenetCalibrator(trt.IInt8EntropyCalibrator2):
     """INT8 Calibrator Class for Imagenet-based Image Classification Models.
 
@@ -80,7 +80,8 @@ class ImagenetCalibrator(trt.IInt8EntropyCalibrator2):
         Name of file to read/write calibration cache from/to.
     """
 
-    def __init__(self, calibration_files=[], batch_size=32, input_shape=(3, 224, 224), cache_file="calibration.cache", preprocess_func=None):
+    def __init__(self, calibration_files=[], batch_size=32, input_shape=(3, 224, 224),
+                 cache_file="calibration.cache", preprocess_func=None):
         super().__init__()
         self.input_shape = input_shape
         self.cache_file = cache_file
@@ -92,12 +93,12 @@ class ImagenetCalibrator(trt.IInt8EntropyCalibrator2):
         # Pad the list so it is a multiple of batch_size
         if len(self.files) % self.batch_size != 0:
             logger.info("Padding # calibration files to be a multiple of batch_size {:}".format(self.batch_size))
-            self.files += calibration_files[len(calibration_files) % self.batch_size : self.batch_size]
+            self.files += calibration_files[(len(calibration_files) % self.batch_size):self.batch_size]
 
         self.batches = self.load_batches()
 
         if preprocess_func is None:
-            logger.error("No pre-processing function defined! Please provide one to the constructor as preprocess_func=<my_function>.")
+            logger.error("No preprocess_func defined! Please provide one to the constructor.")
             sys.exit(1)
         else:
             self.preprocess_func = preprocess_func
