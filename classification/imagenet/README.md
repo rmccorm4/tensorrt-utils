@@ -97,20 +97,6 @@ python infer_tensorrt_imagenet.py -f test_images/mug.jpg \
 > that for simplicity.
 
 
-## ONNX Model Zoo
-
-To name a few models taken from the [ONNX Model Zoo](https://github.com/onnx/models/tree/master/vision/classification)
-that should work pretty well with these scripts:
-* [ResNet50](https://s3.amazonaws.com/download.onnx/models/opset_8/resnet50.tar.gz)
-* [MobileNetV2](https://s3.amazonaws.com/onnx-model-zoo/mobilenet/mobilenetv2-1.0/mobilenetv2-1.0.tar.gz)
-* [InceptionV1](https://s3.amazonaws.com/download.onnx/models/opset_8/inception_v1.tar.gz)
-* [VGG16](https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg16/vgg16.tar.gz)
-
-> **NOTE**: For creating FP32/FP16 engines, **it will likely be much simpler to just use `trtexec --onnx=model.onnx ...`**.
-> These `python` scripts are mostly just convenient for doing `INT8` calibration, because `trtexec` currently just creates
-> `INT8` engines for the sake of benchmarking, and doesn't preserve the accuracy of the model. The FP32/FP16 options just
-> come along for free.
-
 ## INT8 Calibration
 
 See [ImagenetCalibrator.py](ImagenetCalibrator.py) for a reference implementation
@@ -127,3 +113,38 @@ is a string, corresponding to the name of a pre-processing function defined insi
 `processing.py`. You can add your own pre-processing functions to `processing.py` and pass
 the function name into the constructor accordingly.
 
+
+## ONNX Models
+
+### ONNX Model Zoo
+
+To name a few models taken from the [ONNX Model Zoo](https://github.com/onnx/models/tree/master/vision/classification)
+that should work pretty well with these scripts:
+* [ResNet50](https://s3.amazonaws.com/download.onnx/models/opset_8/resnet50.tar.gz)
+* [MobileNetV2](https://s3.amazonaws.com/onnx-model-zoo/mobilenet/mobilenetv2-1.0/mobilenetv2-1.0.tar.gz)
+* [InceptionV1](https://s3.amazonaws.com/download.onnx/models/opset_8/inception_v1.tar.gz)
+* [VGG16](https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg16/vgg16.tar.gz)
+
+> **NOTE**: For creating FP32/FP16 engines, **it will likely be much simpler to just use `trtexec --onnx=model.onnx ...`**.
+> These `python` scripts are mostly just convenient for doing `INT8` calibration, because `trtexec` currently just creates
+> `INT8` engines for the sake of benchmarking, and doesn't preserve the accuracy of the model. The FP32/FP16 options just
+> come along for free.
+
+### TensorFlow Models
+
+To play with these scripts using a TensorFlow model, you'll first need to convert the model to ONNX.
+
+One of the best tools for doing that currently is [tf2onnx](https://github.com/onnx/tensorflow-onnx). 
+Please see their documentation for more details.
+
+Additionally, if you don't want to go from TF -> ONNX -> TRT, you can also try the built-in TF-TRT library
+that comes with TensorFlow: https://github.com/tensorflow/tensorrt
+
+### PyTorch Models
+
+To play with these scripts using a PyTorch model, you'll first need to convert the model to ONNX.
+
+PyTorch has built-in capabilities for exporting models to ONNX format. Please see their documentation for more details: 
+https://pytorch.org/docs/stable/onnx.html
+
+Similarly to TF-TRT, there is an ongoing effort for PyTorch here called `torch2trt`: https://github.com/NVIDIA-AI-IOT/torch2trt
