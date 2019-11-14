@@ -8,19 +8,24 @@ These scripts were last tested using the
 
 ## Quickstart
 
-1. Start TensorRT Container with current directory mounted.
+### 1. Start TensorRT Container with current directory mounted.
+
 ```bash
 docker run --runtime=nvidia -v ${PWD}:/mnt --workdir=/mnt nvcr.io/nvidia/tensorrt:19.10-py3
 ```
 
-2. Download Resnet50 ONNX model from [ONNX Model Zoo](https://github.com/onnx/models/tree/master/vision/classification).
+### 2. Download Resnet50 ONNX model from [ONNX Model Zoo](https://github.com/onnx/models/tree/master/vision/classification).
+
 ```bash
 wget https://s3.amazonaws.com/download.onnx/models/opset_8/resnet50.tar.gz
 tar -xvzf resnet50.tar.gz
 ```
 
-3. Convert ONNX model to TensorRT
-    * See `./onnx_to_tensorrt.py -h` for full list of command line arguments.
+### 3. Convert ONNX model to TensorRT
+
+See `./onnx_to_tensorrt.py -h` for full list of command line arguments.
+
+Also see `trtexec` if you're only interested in FP32/FP16 and not INT8 engines.
 
 **FP32**
 ```bash
@@ -69,7 +74,7 @@ python3 onnx_to_tensorrt.py --fp16 --int8 \
 
 ```
 
-4. Infer on a sample image to quickly verify the engine.
+### 4. Infer on a sample image to quickly verify the engine.
 
 ```bash
 python infer_tensorrt_imagenet.py -f test_images/mug.jpg -b 1 --engine resnet50.fp16.engine --preprocess_func=preprocess_imagenet
