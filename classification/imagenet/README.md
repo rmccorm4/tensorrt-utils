@@ -5,6 +5,7 @@ various ONNX classification models based on Imagenet data using the Python API.
 
 These scripts were last tested using the 
 [NGC TensorRT Container Version 19.10-py3](https://ngc.nvidia.com/catalog/containers/nvidia:tensorrt).
+You can see the corresponding framework versions for this container [here](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_19-10.html#rel_19-10).
 
 ## Quickstart
 
@@ -121,7 +122,7 @@ OUTPUT="resnet50.int8.engine"
 # on your ${CALIBRATION_DATA}, unless ${CACHE_FILENAME} already exists, then
 # it will use simply use that instead.
 python3 onnx_to_tensorrt.py --fp16 --int8 -v \
-        --max_calibration_size=512 \
+        --max_calibration_size=${MAX_CALIBRATION_SIZE} \
         --calibration-data=${CALIBRATION_DATA} \
         --calibration-cache=${CACHE_FILENAME} \
         --preprocess_func=${PREPROCESS_FUNC} \
