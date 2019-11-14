@@ -131,6 +131,8 @@ if __name__ == '__main__':
                         help="Path to input image.")
     parser.add_argument('-d', '--directory', default=None, type=str,
                         help="Path to directory of input images.")
+    parser.add_argument("-l", "--labels", type=str, default=os.path.join("labels", "imagenet1k_labels.txt"),
+                        help="Path to file containing model prediction labels.")
     parser.add_argument('-n', '--num_classes', default=3, type=int,
                         help="Top-K predictions to output.")
     parser.add_argument('-b', '--batch_size', default=8, type=int,
@@ -140,7 +142,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     input_images = get_inputs(args.file, args.directory)
-    with open("imagenet1k_labels.txt", "r") as f:
+    with open(args.labels, "r") as f:
         labels = np.array(f.read().splitlines())
 
     # Choose pre-processing function for inference inputs
