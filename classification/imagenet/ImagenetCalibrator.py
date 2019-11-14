@@ -78,6 +78,10 @@ class ImagenetCalibrator(trt.IInt8EntropyCalibrator2):
         Tuple of integers defining the shape of input to the model (Default: (3, 224, 224))
     cache_file: str
         Name of file to read/write calibration cache from/to.
+    preprocess_func: function -> numpy.ndarray
+        Pre-processing function to run on calibration data. This should match the pre-processing
+        done at inference time. In general, this function should return a numpy array of
+        shape `input_shape`.
     """
 
     def __init__(self, calibration_files=[], batch_size=32, input_shape=(3, 224, 224),
