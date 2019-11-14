@@ -67,23 +67,34 @@ ONNX_MODEL="resnet50/model.onnx"
 OUTPUT="resnet50.int8.engine"
 
 python3 onnx_to_tensorrt.py --fp16 --int8 \
-	--calibration-data=${CALIBRATION_DATA} \
-	--calibration-cache=${CACHE_FILENAME} \
-	--preprocess_func=${PREPROCESS_FUNC} \
-	--onnx ${ONNX_MODEL} -o ${OUTPUT}
+        --max_calibration_size=512 \
+        --calibration-data=${CALIBRATION_DATA} \
+        --calibration-cache=${CACHE_FILENAME} \
+        --preprocess_func=${PREPROCESS_FUNC} \
+        --onnx ${ONNX_MODEL} -o ${OUTPUT}
 
 ```
 
 ### 4. Infer on a sample image to quickly verify the engine.
 
+See `./infer_tensorrt_imagenet.py -h` for full list of command line arguments.
+
 ```bash
-python infer_tensorrt_imagenet.py -f test_images/mug.jpg -b 1 --engine resnet50.fp16.engine --preprocess_func=preprocess_imagenet
+python infer_tensorrt_imagenet.py -f test_images/mug.jpg \
+                                  --batch_size 1 \
+                                  --num_classes 3 \
+                                  --preprocess_func=preprocess_imagenet \
+                                  --engine resnet50.fp16.engine
 
 #    Input image: test_images/mug.jpg
-#	    Prediction: coffee mug                     Probability: 0.83
-#	    Prediction: cup                            Probability: 0.16
-#	    Prediction: espresso                       Probability: 0.00
+#        Prediction: coffee mug                     Probability: 0.83
+#        Prediction: cup                            Probability: 0.16
+#        Prediction: espresso                       Probability: 0.00
 ```
+
+> **NOTE**: If the "Probability" for a prediction is > 1.0, this probably just means
+> that there wasn't a `Softmax` layer in the original model, and I decided not to handle
+> that for simplicity.
 
 
 ## ONNX Model Zoo
