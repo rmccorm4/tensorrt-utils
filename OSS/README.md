@@ -9,6 +9,12 @@ docker run --runtime=nvidia -it nvcr.io/nvidia/tensorrt:19.10-py3
 
 # Build OSS Components from https://github.com/NVIDIA/TensorRT
 source build_OSS.sh
+
+# NOTE: If you try to run the script with "./build_OSS.sh" instead of 
+# "source build_OSS.sh", environment variables such as LD_LIBRARY_PATH and 
+# TRT_LIB_DIR won't persist outside of the script, and you may run into problems.
+#
+# You can also manually set these environment variables yourself in that case.
 ```
 
 Alternatively, you can take the commands from [build_OSS.sh](build_OSS.sh) and
