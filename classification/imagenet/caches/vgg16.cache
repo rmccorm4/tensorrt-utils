@@ -1,0 +1,50 @@
+TRT-6001-EntropyCalibration2
+data: 3caa54fc
+vgg0_conv0_fwd: 3da9d57a
+vgg0_relu0_fwd: 3da986a4
+vgg0_conv1_fwd: 3e5a0c01
+vgg0_relu1_fwd: 3e185001
+vgg0_pool0_fwd: 3e185001
+vgg0_conv2_fwd: 3ea7f920
+vgg0_relu2_fwd: 3e509071
+vgg0_conv3_fwd: 3ead0503
+vgg0_relu3_fwd: 3e8edaa5
+vgg0_pool1_fwd: 3e8edaa5
+vgg0_conv4_fwd: 3f074c91
+vgg0_relu4_fwd: 3eceae4b
+vgg0_conv5_fwd: 3f1988f4
+vgg0_relu5_fwd: 3ee96826
+vgg0_conv6_fwd: 3f1e9c4b
+vgg0_relu6_fwd: 3f0a2710
+vgg0_pool2_fwd: 3f0a2710
+vgg0_conv7_fwd: 3f56751e
+vgg0_relu7_fwd: 3f20ddc6
+vgg0_conv8_fwd: 3f430a56
+vgg0_relu8_fwd: 3f05c536
+vgg0_conv9_fwd: 3f1dfee3
+vgg0_relu9_fwd: 3ef5c08b
+vgg0_pool3_fwd: 3ef5c08b
+vgg0_conv10_fwd: 3f0fb18d
+vgg0_relu10_fwd: 3eeb08cd
+vgg0_conv11_fwd: 3f0bb6af
+vgg0_relu11_fwd: 3ebae263
+vgg0_conv12_fwd: 3f094719
+vgg0_relu12_fwd: 3ea3b38b
+vgg0_pool4_fwd: 3ea3b38b
+flatten_60: 3ea3846e
+(Unnamed Layer* 32) [Constant]_output: 3a3f0b34
+(Unnamed Layer* 33) [Constant]_output: 3975ac8b
+(Unnamed Layer* 34) [Matrix Multiply]_output: 3e8096ba
+vgg0_dense0_fwd: 3e8b3679
+vgg0_dense0_relu_fwd: 3e1aa1dd
+flatten_65: 3e1aa1dd
+(Unnamed Layer* 38) [Constant]_output: 3a8e0898
+(Unnamed Layer* 39) [Constant]_output: 39e44a25
+(Unnamed Layer* 40) [Matrix Multiply]_output: 3dd5d813
+vgg0_dense1_fwd: 3de2b7b4
+vgg0_dense1_relu_fwd: 3da062e2
+flatten_70: 3da062e2
+(Unnamed Layer* 44) [Constant]_output: 3a5610af
+(Unnamed Layer* 45) [Constant]_output: 3a4ca905
+(Unnamed Layer* 46) [Matrix Multiply]_output: 3e951e45
+vgg0_dense2_fwd: 3e77b398
