@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+
 # Reference: https://devtalk.nvidia.com/default/topic/1064669/tensorrt/troubleshooting-suggestions-for-onnx-v-tensorrt-discrepancies/post/5392296/#5392296
 def dump_network(network, filename):
     """Dumps TensorRT parsed network attributes to a JSON file.
