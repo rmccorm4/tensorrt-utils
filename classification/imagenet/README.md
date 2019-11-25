@@ -12,7 +12,7 @@ You can see the corresponding framework versions for this container [here](https
 ### 1. Start TensorRT Container with current directory mounted.
 
 ```bash
-docker run --runtime=nvidia -v ${PWD}:/mnt --workdir=/mnt nvcr.io/nvidia/tensorrt:19.10-py3
+docker run -it --runtime=nvidia -v ${PWD}:/mnt --workdir=/mnt nvcr.io/nvidia/tensorrt:19.10-py3
 ```
 
 ### 2. Download Resnet50 ONNX model from [ONNX Model Zoo](https://github.com/onnx/models/tree/master/vision/classification).
