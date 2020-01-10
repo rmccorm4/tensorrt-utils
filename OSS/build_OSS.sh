@@ -9,13 +9,17 @@ cd TensorRT
 git submodule update --init --recursive --progress
 export TRT_SOURCE=`pwd`
 
+# Get most up to date ONNX parser
+pushd parsers/onnx && git checkout master && git pull && popd
+
 # Install required libraries
 apt-get update && apt-get install -y --no-install-recommends \
 	libcurl4-openssl-dev \
 	wget \
 	zlib1g-dev \
 	git \
-	pkg-config
+	pkg-config \
+	figlet
 
 # Install CMake >= 3.13
 pushd /tmp
@@ -33,7 +37,6 @@ source ~/.bashrc
 # Set relevant env variables relative to NGC container paths
 export TRT_RELEASE=/usr/src/tensorrt
 export TRT_LIB_DIR=$TRT_RELEASE/lib
-export TRT_SOURCE=/mnt/TensorRT
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRT_LIB_DIR
 
 # Generate Makefiles and build
@@ -43,7 +46,4 @@ cmake .. -DTRT_LIB_DIR=$TRT_RELEASE/lib -DTRT_BIN_DIR=`pwd`/out
 make -j$(nproc)
 
 # Install OSS Components
-make install
-
-# Installed!
-
+make install && figlet "Success" || figlet "Failed"
