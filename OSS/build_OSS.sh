@@ -2,15 +2,19 @@
 
 # Convenience script for building TensorRT OSS components inside
 # of a TensorRT/TensorFlow container from [NGC](ngc.nvidia.com)
+TAG=${1:-"master"}
+ROOT=`pwd`
 
 # Download OSS Components
-git clone -b master https://github.com/nvidia/TensorRT TensorRT
+git clone -b ${TAG} https://github.com/nvidia/TensorRT TensorRT
 cd TensorRT
 git submodule update --init --recursive --progress
 export TRT_SOURCE=`pwd`
 
-# Get most up to date ONNX parser
-pushd parsers/onnx && git checkout master && git pull && popd
+# Get most up to date ONNX parser if using OSS TensorRT master branch
+if [[ ${TAG} -eq "master" ]]; then
+  pushd parsers/onnx && git checkout master && git pull && popd
+fi
 
 # Install required libraries
 apt-get update && apt-get install -y --no-install-recommends \
@@ -47,3 +51,4 @@ make -j$(nproc)
 
 # Install OSS Components
 make install && figlet "Success" || figlet "Failed"
+cd ${ROOT}
