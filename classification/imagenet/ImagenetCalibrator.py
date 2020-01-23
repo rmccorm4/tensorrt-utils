@@ -29,6 +29,31 @@ logging.basicConfig(level=logging.DEBUG,
                     datefmt="%Y-%m-%d %H:%M:%S")
 logger = logging.getLogger(__name__)
 
+def get_int8_calibrator(calib_cache, calib_data, max_calib_size, preprocess_func_name, calib_batch_size):
+    # Use calibration cache if it exists
+    if os.path.exists(calib_cache):
+        logger.info("Skipping calibration files, using calibration cache: {:}".format(calib_cache))
+        calib_files = []
+    # Use calibration files from validation dataset if no cache exists
+    else:
+        if not calib_data:
+            raise ValueError("ERROR: Int8 mode requested, but no calibration data provided. Please provide --calibration-data /path/to/calibration/files")
+
+        calib_files = get_calibration_files(calib_data, max_calib_size)
+
+    # Choose pre-processing function for INT8 calibration
+    import processing
+    if preprocess_func_name is not None:
+        preprocess_func = getattr(processing, preprocess_func_name)
+    else:
+        preprocess_func = processing.preprocess_imagenet
+
+    int8_calibrator = ImagenetCalibrator(calibration_files=calib_files,
+                                         batch_size=calib_batch_size,
+                                         cache_file=calib_cache,
+                                         preprocess_func=preprocess_func)
+    return int8_calibrator
+
 
 def get_calibration_files(calibration_data, max_calibration_size=None, allowed_extensions=(".jpeg", ".jpg", ".png")):
     """Returns a list of all filenames ending with `allowed_extensions` found in the `calibration_data` directory.
