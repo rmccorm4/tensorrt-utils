@@ -81,31 +81,28 @@ def get_batch_sizes(max_batch_size):
 
 
 # TODO: This only covers dynamic shape for batch size, not dynamic shape for other dimensions
-def create_optimization_profiles(builder, inputs, explicit_batch, batch_sizes=[1,8,16,32,64]): 
+def create_optimization_profiles(builder, inputs, batch_sizes=[1,8,16,32,64]): 
     # Check if all inputs are fixed explicit batch to create a single profile and avoid duplicates
-    if explicit_batch and all([inp.shape[0] > -1 for inp in inputs]):
+    if all([inp.shape[0] > -1 for inp in inputs]):
         profile = builder.create_optimization_profile()
         for inp in inputs:
             fbs, shape = inp.shape[0], inp.shape[1:]
             profile.set_shape(inp.name, min=(fbs, *shape), opt=(fbs, *shape), max=(fbs, *shape))
             return [profile]
     
-    # Otherwise for implicit, or mixed fixed+dynamic explicit batch inputs, create several profiles
+    # Otherwise for mixed fixed+dynamic explicit batch inputs, create several profiles
     profiles = {}
     for bs in batch_sizes:
         if not profiles.get(bs):
             profiles[bs] = builder.create_optimization_profile()
 
         for inp in inputs: 
-            shape = inp.shape[1:] if explicit_batch else inp.shape
+            shape = inp.shape[1:]
+            # Check if fixed explicit batch
+            if inp.shape[0] > -1:
+                bs = inp.shape[0]
 
-            # Dynamic explicit batch or implicit batch
-            if inp.shape[0] == -1 or not explicit_batch:
-                profiles[bs].set_shape(inp.name, min=(bs, *shape), opt=(bs, *shape), max=(bs, *shape))
-            # Fixed explicit batch
-            else:
-                fbs = inp.shape[0]
-                profiles[bs].set_shape(inp.name, min=(fbs, *shape), opt=(fbs, *shape), max=(fbs, *shape))
+            profiles[bs].set_shape(inp.name, min=(bs, *shape), opt=(bs, *shape), max=(bs, *shape))
 
     return list(profiles.values())
 
@@ -196,14 +193,14 @@ def main():
         # Display network info and check certain properties
         check_network(network)
 
-        # Add optimization profiles
-        batch_sizes = [1, 8, 16, 32, 64]
-        inputs = [network.get_input(i) for i in range(network.num_inputs)]
-        opt_profiles = create_optimization_profiles(builder, inputs, args.explicit_batch, batch_sizes)
-        add_profiles(config, inputs, opt_profiles)
-
+        if args.explicit_batch:
+            # Add optimization profiles
+            batch_sizes = [1, 8, 16, 32, 64]
+            inputs = [network.get_input(i) for i in range(network.num_inputs)]
+            opt_profiles = create_optimization_profiles(builder, inputs, args.explicit_batch, batch_sizes)
+            add_profiles(config, inputs, opt_profiles)
         # Implicit Batch Network
-        if not args.explicit_batch:
+        else:
             builder.max_batch_size = args.max_batch_size
 
         logger.info("Building Engine...")
