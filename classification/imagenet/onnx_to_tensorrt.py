@@ -197,7 +197,7 @@ def main():
             # Add optimization profiles
             batch_sizes = [1, 8, 16, 32, 64]
             inputs = [network.get_input(i) for i in range(network.num_inputs)]
-            opt_profiles = create_optimization_profiles(builder, inputs, args.explicit_batch, batch_sizes)
+            opt_profiles = create_optimization_profiles(builder, inputs, batch_sizes)
             add_profiles(config, inputs, opt_profiles)
         # Implicit Batch Network
         else:
