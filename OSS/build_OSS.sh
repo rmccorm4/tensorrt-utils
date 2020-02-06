@@ -8,7 +8,7 @@ ROOT=`pwd`
 # Download OSS Components
 git clone -b ${TAG} https://github.com/nvidia/TensorRT TensorRT
 cd TensorRT
-git submodule update --init --recursive --progress
+git submodule update --init --recursive
 export TRT_SOURCE=`pwd`
 
 # Get most up to date ONNX parser if using OSS TensorRT master branch
