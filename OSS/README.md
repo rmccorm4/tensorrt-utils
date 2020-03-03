@@ -8,6 +8,7 @@ you can run the following [build_OSS.sh](build_OSS.sh) script inside of the cont
 docker run --runtime=nvidia -it nvcr.io/nvidia/tensorrt:19.10-py3
 
 # Build OSS Components from https://github.com/NVIDIA/TensorRT
+wget https://raw.githubusercontent.com/rmccorm4/tensorrt-utils/master/OSS/build_OSS.sh
 source build_OSS.sh
 
 # NOTE: If you try to run the script with "./build_OSS.sh" instead of 
