@@ -63,7 +63,6 @@ if __name__ == "__main__":
     parser.add_argument("-p", "--plugins", nargs="*", default=[], help="Path to a plugin (.so) library file. Accepts multiple arguments.")
     args = parser.parse_args()
 
-    print(args.plugins)
     for plugin_library in args.plugins:
         # Example default plugin library: "/usr/lib/x86_64-linux-gnu/libnvinfer_plugin.so"
         logger.info("Loading plugin library: {}".format(plugin_library))
