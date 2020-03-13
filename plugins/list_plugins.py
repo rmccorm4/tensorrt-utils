@@ -15,24 +15,14 @@
 # limitations under the License.
 
 import ctypes
+import logging
 import tensorrt as trt
 
-# https://docs.nvidia.com/deeplearning/sdk/tensorrt-api/python_api/infer/Plugin/IPluginRegistry.html
-def setup_plugin_registry(logger):
-    # Example of loading plugins shipped with TRT_RELEASE
-    ctypes.CDLL("/usr/lib/x86_64-linux-gnu/libnvinfer_plugin.so", mode=ctypes.RTLD_GLOBAL)
-
-    # Example of loading OSS plugins built from source
-    #ctypes.CDLL("/mnt/TensorRT/build/out/libnvinfer_plugin.so", mode=ctypes.RTLD_GLOBAL)
-
-    # Register the plugins loaded from libraries
-    trt.init_libnvinfer_plugins(TRT_LOGGER, "")
-
-    # Get plugin registry to view the registered plugins
-    plugin_registry = trt.get_plugin_registry()
-    
-    return plugin_registry
-
+logging.basicConfig(level=logging.DEBUG,
+                    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                    datefmt="%Y-%m-%d %H:%M:%S")
+logger = logging.getLogger(__name__)
+TRT_LOGGER = trt.Logger(trt.Logger.INFO)
 
 # https://docs.nvidia.com/deeplearning/sdk/tensorrt-api/python_api/infer/Plugin/IPluginCreator.html
 def get_all_plugin_details(plugin_registry):
@@ -63,14 +53,32 @@ def get_all_plugin_names(plugin_registry):
     return [c.name for c in plugin_registry.plugin_creator_list]
 
 
+# Example usage: 
+#   (1) python list_plugins.py 
+#   (2) python list_plugins.py --plugins CustomIPluginV2/CustomPlugin.so
+#   (3) python list_plugins.py --plugins CustomIPluginV2/CustomPlugin.so /mnt/TensorRT/build/out/libnvinfer_plugin.so
 if __name__ == "__main__":
-    TRT_LOGGER = trt.Logger(trt.Logger.INFO)
+    import argparse
+    parser = argparse.ArgumentParser(description="Script to list registered TensorRT plugins. Can optionally load custom plugin libraries.")
+    parser.add_argument("-p", "--plugins", nargs="*", default=[], help="Path to a plugin (.so) library file. Accepts multiple arguments.")
+    args = parser.parse_args()
 
-    plugin_registry = setup_plugin_registry(TRT_LOGGER)
+    print(args.plugins)
+    for plugin_library in args.plugins:
+        # Example default plugin library: "/usr/lib/x86_64-linux-gnu/libnvinfer_plugin.so"
+        logger.info("Loading plugin library: {}".format(plugin_library))
+        ctypes.CDLL(plugin_library, mode=ctypes.RTLD_GLOBAL)
+
+    logger.info("Registering plugins...")
+    # Register the plugins loaded from libraries
+    trt.init_libnvinfer_plugins(TRT_LOGGER, "")
+
+    # Get plugin registry to view the registered plugins
+    plugin_registry = trt.get_plugin_registry()
 
     from pprint import pprint
-    print("\n======== Registered Plugin Details ========\n")
-    pprint(get_all_plugin_details(plugin_registry))
+    #logger.info("Registered Plugin Details:")
+    #pprint(get_all_plugin_details(plugin_registry))
 
-    print("\n======== Registered Plugin Names ========\n")
+    logger.info("Registered Plugin Names:") 
     pprint(get_all_plugin_names(plugin_registry))
