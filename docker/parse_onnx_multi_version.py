@@ -30,8 +30,6 @@ model = sys.argv[1]
 
 # Docker API
 client = docker.from_env()
-# MUST PULL THESE IMAGES LOCALLY BEFORE RUNNING SCRIPT
-#images = ["nvcr.io/nvidia/tensorrt:20.02-py3"]
 images = ["nvcr.io/nvidia/tensorrt:19.12-py3", "nvcr.io/nvidia/tensorrt:20.02-py3"]
 cmd_trtexec = ["cd /mnt", "&&", "trtexec", "--explicitBatch", "--onnx={}".format(model)]
 # TODO: This won't work as is for TRT 6, need tp specify release/6.0 branch for TRT 6
@@ -50,6 +48,10 @@ start = time.time()
 
 # Try each combination
 for image in images:
+    print("Pulling image: {}".format(image))
+    client.images.pull(image)
+    
+    print("Executing commands...")
     for command in commands:
         command = "/bin/bash -c '{}'".format(" ".join(command))
         container = client.containers.run(
