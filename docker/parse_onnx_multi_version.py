@@ -63,7 +63,7 @@ for image in images:
             line = line.decode().strip()
             print(line)
             err_regex = re.compile(r"\[[0-9]+\]", re.MULTILINE)
-            if "[E]" in line or err_regex.search(line): 
+            if "[E]" in line or "ERROR" in line or err_regex.search(line): 
                 errors[image][command].append(line)
             elif "[W]" in line:
                 warnings[image][command].append(line)
