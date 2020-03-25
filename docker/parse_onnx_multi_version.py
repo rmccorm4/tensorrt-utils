@@ -18,6 +18,7 @@ import os
 import re
 import sys
 import time
+import onnx
 import docker
 from pprint import pprint
 from collections import defaultdict
@@ -26,16 +27,21 @@ if len(sys.argv) < 2:
     sys.exit("Usage: {} model.onnx".format(sys.argv[0]))
 
 # ONNX file in current directory
-model = sys.argv[1]
+filename = sys.argv[1]
+
+# Verify onnx model is valid before trying anything else
+model = onnx.load(filename)
+onnx.checker.check_model(model)
+print("ONNX Checker: {} is a valid ONNX model.".format(filename))
 
 # Docker API
 client = docker.from_env()
 images = ["nvcr.io/nvidia/tensorrt:19.12-py3", "nvcr.io/nvidia/tensorrt:20.02-py3"]
-cmd_trtexec = ["cd /mnt", "&&", "trtexec", "--explicitBatch", "--onnx={}".format(model)]
+cmd_trtexec = ["cd /mnt", "&&", "trtexec", "--explicitBatch", "--onnx={}".format(filename)]
 # TODO: This won't work as is for TRT 6, need tp specify release/6.0 branch for TRT 6
-#cmd_build_OSS = ["wget", "https://raw.githubusercontent.com/rmccorm4/tensorrt-utils/master/OSS/build_OSS.sh", "&&", "source", "build_OSS.sh"]
+cmd_build_OSS = ["wget", "https://raw.githubusercontent.com/rmccorm4/tensorrt-utils/master/OSS/build_OSS.sh", "&&", "source", "build_OSS.sh"]
 # TODO: This works for both TRT 6 + 7, but doesn't capture latest changes in master for TRT 7
-cmd_build_OSS = ["/bin/bash", "/opt/tensorrt/install_opensource.sh"]
+#cmd_build_OSS = ["/bin/bash", "/opt/tensorrt/install_opensource.sh"]
 cmd_trtexec_OSS = cmd_build_OSS + ["&&"] + cmd_trtexec
 commands = [cmd_trtexec, cmd_trtexec_OSS]
 
@@ -54,6 +60,10 @@ for image in images:
     print("Executing commands...")
     for command in commands:
         command = "/bin/bash -c '{}'".format(" ".join(command))
+        # Handle edge case for TRT 6 / 19.12 branch
+        if "19.12" in image and "build_OSS.sh" in command:
+            command = command.replace("source build_OSS.sh", "source build_OSS.sh 19.12")
+
         container = client.containers.run(
                 image,
                 command=command,
