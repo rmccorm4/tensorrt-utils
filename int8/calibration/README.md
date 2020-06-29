@@ -4,15 +4,22 @@ This directory contains some helper scripts for creating TensorRT engines from
 various ONNX classification models based on Imagenet data using the Python API. 
 
 These scripts were last tested using the 
-[NGC TensorRT Container Version 19.10-py3](https://ngc.nvidia.com/catalog/containers/nvidia:tensorrt).
-You can see the corresponding framework versions for this container [here](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_19-10.html#rel_19-10).
+[NGC TensorRT Container Version 20.06-py3](https://ngc.nvidia.com/catalog/containers/nvidia:tensorrt).
+You can see the corresponding framework versions for this container [here](https://docs.nvidia.com/deeplearning/sdk/tensorrt-container-release-notes/rel_20.06.html#rel_20.06).
 
 ## Quickstart
+
+> **NOTE**: This INT8 example is only valid for **fixed-shape** ONNX models at the moment. 
+>
+> With the release of TensorRT 7.1,
+INT8 Calibration on **dynamic-shape** models is now supported, however this example has not been updated
+to reflect that yet. For more details on INT8 Calibration for **dynamic-shape** models, please
+see the [documentation](https://docs.nvidia.com/deeplearning/tensorrt/developer-guide/index.html#int8-calib-dynamic-shapes).
 
 ### 1. Start TensorRT Container with current directory mounted.
 
 ```bash
-docker run -it --runtime=nvidia -v ${PWD}:/mnt --workdir=/mnt nvcr.io/nvidia/tensorrt:19.10-py3
+docker run -it --runtime=nvidia -v ${PWD}:/mnt --workdir=/mnt nvcr.io/nvidia/tensorrt:20.06-py3
 ```
 
 ### 2. Download Resnet50 ONNX model from [ONNX Model Zoo](https://github.com/onnx/models/tree/master/vision/classification).
@@ -30,50 +37,31 @@ Also see `trtexec` if you're only interested in FP32/FP16 and not INT8 engines.
 
 **FP32**
 ```bash
-# OR trtexec --onnx=resnet50/model.onnx --saveEngine=resnet50.fp32.engine
-./onnx_to_tensorrt.py --onnx resnet50/model.onnx -o resnet50.fp32.engine
+# OR trtexec --explicitBatch --onnx=resnet50/model.onnx --saveEngine=resnet50.fp32.engine
+./onnx_to_tensorrt.py --explicit-batch --onnx resnet50/model.onnx -o resnet50.fp32.engine
 ```
 
 **FP16**
 ```bash
-# OR trtexec --onnx=resnet50/model.onnx --fp16 --saveEngine=resnet50.fp16.engine
-./onnx_to_tensorrt.py --onnx resnet50/model.onnx -o resnet50.fp16.engine --fp16
+# OR trtexec --explicitBatch --onnx=resnet50/model.onnx --fp16 --saveEngine=resnet50.fp16.engine
+./onnx_to_tensorrt.py --explicit-batch --onnx resnet50/model.onnx -o resnet50.fp16.engine --fp16
 ```
 
 **INT8**
 
 For simplicity, we can use an existing calibration cache from [caches/resnet50.cache](caches/resnet50.cache):
 ```bash
-./onnx_to_tensorrt.py --onnx resnet50/model.onnx -o resnet50.int8.engine --fp16 --int8 \
-                      --calibration-cache="caches/resnet50.cache"
+./onnx_to_tensorrt.py --explicit-batch \
+                      --onnx resnet50/model.onnx \
+                      --fp16 \
+                      --int8 \
+                      --calibration-cache="caches/resnet50.cache" \
+                      -o resnet50.int8.engine 
 ```
 
 See the [INT8 Calibration](#int8-calibration) section below for details on calibration
 using your own model or different data, where you don't have an existing calibration cache
 or want to create a new one.
-
-
-### 4. Infer on a sample image to quickly verify the engine.
-
-See `./infer_tensorrt_imagenet.py -h` for full list of command line arguments.
-
-```bash
-python infer_tensorrt_imagenet.py -f test_images/mug.jpg \
-                                  --batch_size 1 \
-                                  --num_classes 3 \
-                                  --preprocess_func=preprocess_imagenet \
-                                  --engine resnet50.fp16.engine
-
-#    Input image: test_images/mug.jpg
-#        Prediction: coffee mug                     Probability: 0.83
-#        Prediction: cup                            Probability: 0.16
-#        Prediction: espresso                       Probability: 0.00
-```
-
-> **NOTE**: If the "Probability" for a prediction is > 1.0, this probably just means
-> that there wasn't a `Softmax` layer in the original model, and I decided not to handle
-> that for simplicity.
-
 
 ## INT8 Calibration
 
@@ -126,6 +114,7 @@ python3 onnx_to_tensorrt.py --fp16 --int8 -v \
         --calibration-data=${CALIBRATION_DATA} \
         --calibration-cache=${CACHE_FILENAME} \
         --preprocess_func=${PREPROCESS_FUNC} \
+        --explicit-batch \
         --onnx ${ONNX_MODEL} -o ${OUTPUT}
 
 ```
