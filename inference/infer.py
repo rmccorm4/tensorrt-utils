@@ -68,8 +68,8 @@ def get_binding_idxs(engine: trt.ICudaEngine, profile_index: int):
     print("Engine/Binding Metadata")
     print("\tNumber of optimization profiles: {}".format(engine.num_optimization_profiles))
     print("\tNumber of bindings per profile: {}".format(num_bindings_per_profile))
-    print("\tFirst binding for profile: {}".format(profile_index))
-    print("\tLast binding for profile: {}".format(profile_index))
+    print("\tFirst binding for profile {}: {}".format(profile_index, start_binding))
+    print("\tLast binding for profile {}: {}".format(profile_index, end_binding-1))
 
     # Separate input and output binding indices for convenience
     input_binding_idxs = []
