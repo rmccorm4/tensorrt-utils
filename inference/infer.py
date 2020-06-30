@@ -93,10 +93,13 @@ def get_random_inputs(
     engine: trt.ICudaEngine,
     context: trt.IExecutionContext,
     input_binding_idxs: List[int],
+    seed: int = 42,
 ):
     # Input data for inference
     host_inputs = []
     print("Generating Random Inputs")
+    print("\tUsing random seed: {}".format(seed))
+    np.random.seed(seed)
     for binding_index in input_binding_idxs:
         # If input shape is fixed, we'll just use it
         input_shape = context.get_binding_shape(binding_index)
@@ -119,9 +122,10 @@ def get_random_inputs(
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-e", "--engine", required=True, type=str, help="Path to TensorRT engine file."
-    )
+    parser.add_argument("-e", "--engine", required=True, type=str,
+                        help="Path to TensorRT engine file.")
+    parser.add_argument("-s", "--seed", type=int, 
+                        help="Random seed for reproducibility.")
     args = parser.parse_args()
 
     # Load a serialized engine into memory
@@ -142,7 +146,7 @@ def main():
     input_names = [engine.get_binding_name(binding_idx) for binding_idx in input_binding_idxs]
     
     # Generate random inputs based on profile shapes
-    host_inputs = get_random_inputs(engine, context, input_binding_idxs)
+    host_inputs = get_random_inputs(engine, context, input_binding_idxs, seed=args.seed)
 
     # Allocate device memory for inputs. This can be easily re-used if the
     # input shapes don't change
