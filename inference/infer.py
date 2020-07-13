@@ -124,7 +124,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-e", "--engine", required=True, type=str,
                         help="Path to TensorRT engine file.")
-    parser.add_argument("-s", "--seed", type=int, 
+    parser.add_argument("-s", "--seed", type=int, default=42,
                         help="Random seed for reproducibility.")
     args = parser.parse_args()
 
