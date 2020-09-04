@@ -23,8 +23,6 @@ import argparse
 
 import tensorrt as trt
 
-from ImagenetCalibrator import ImagenetCalibrator, get_calibration_files, get_int8_calibrator # local module
-
 TRT_LOGGER = trt.Logger()
 logging.basicConfig(level=logging.DEBUG,
                     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -126,6 +124,7 @@ def main():
     parser.add_argument("--calibration-batch-size", help="(INT8 ONLY) The batch size to use during calibration.", type=int, default=32)
     parser.add_argument("--max-calibration-size", help="(INT8 ONLY) The max number of data to calibrate on from --calibration-data.", type=int, default=512)
     parser.add_argument("-p", "--preprocess_func", type=str, default=None, help="(INT8 ONLY) Function defined in 'processing.py' to use for pre-processing calibration data.")
+    parser.add_argument("-s", "--simple", action="store_true", help="Use SimpleCalibrator with random data instead of ImagenetCalibrator for INT8 calibration.")
     args, _ = parser.parse_known_args()
 
     # Adjust logging verbosity
@@ -169,19 +168,6 @@ def main():
                 logger.info("Setting {}".format(builder_flag_map[flag]))
                 config.set_flag(builder_flag_map[flag])
 
-        if args.fp16 and not builder.platform_has_fast_fp16:
-            logger.warning("FP16 not supported on this platform.")
-
-        if args.int8 and not builder.platform_has_fast_int8:
-            logger.warning("INT8 not supported on this platform.")
-
-        if args.int8:
-            config.int8_calibrator = get_int8_calibrator(args.calibration_cache,
-                                                         args.calibration_data,
-                                                         args.max_calibration_size,
-                                                         args.preprocess_func,
-                                                         args.calibration_batch_size)
-
         # Fill network atrributes with information by parsing model
         with open(args.onnx, "rb") as f:
             if not parser.parse(f.read()):
@@ -202,6 +188,26 @@ def main():
         # Implicit Batch Network
         else:
             builder.max_batch_size = args.max_batch_size
+            opt_profiles = []
+
+        # Precision flags
+        if args.fp16 and not builder.platform_has_fast_fp16:
+            logger.warning("FP16 not supported on this platform.")
+
+        if args.int8 and not builder.platform_has_fast_int8:
+            logger.warning("INT8 not supported on this platform.")
+
+        if args.int8:
+            if args.simple:
+                from SimpleCalibrator import SimpleCalibrator # local module
+                config.int8_calibrator = SimpleCalibrator(network, config)
+            else:
+                from ImagenetCalibrator import ImagenetCalibrator, get_int8_calibrator # local module
+                config.int8_calibrator = get_int8_calibrator(args.calibration_cache,
+                                                             args.calibration_data,
+                                                             args.max_calibration_size,
+                                                             args.preprocess_func,
+                                                             args.calibration_batch_size)
 
         logger.info("Building Engine...")
         with builder.build_engine(network, config) as engine, open(args.output, "wb") as f:
